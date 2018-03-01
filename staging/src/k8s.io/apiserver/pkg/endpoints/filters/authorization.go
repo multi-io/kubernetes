@@ -35,6 +35,7 @@ func WithAuthorization(handler http.Handler, requestContextMapper request.Reques
 		return handler
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		glog.Errorf("oklischat filters/authorization start")
 		ctx, ok := requestContextMapper.Get(req)
 		if !ok {
 			responsewriters.InternalError(w, req, errors.New("no context found for request"))
@@ -48,11 +49,13 @@ func WithAuthorization(handler http.Handler, requestContextMapper request.Reques
 		}
 		authorized, reason, err := a.Authorize(attributes)
 		if authorized {
+			glog.Errorf("oklischat filters/authorization succeeded, calling next handler (probably an API handler since authorization is the innermost filter in the default setup)")
 			handler.ServeHTTP(w, req)
 			return
 		}
 		if err != nil {
 			responsewriters.InternalError(w, req, err)
+			glog.Errorf("oklischat filters/authorization failed, error written")
 			return
 		}
 
