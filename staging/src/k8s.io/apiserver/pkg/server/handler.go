@@ -130,6 +130,8 @@ type director struct {
 func (d director) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	path := req.URL.Path
 
+	glog.V(4).Infof("oklischat [goroutine %v]: entering director for %v %q", exec.CurGoroutineID(), req.Method, path)
+
 	// check to see if our webservices want to claim this path
 	for _, ws := range d.goRestfulContainer.RegisteredWebServices() {
 		switch {
@@ -138,10 +140,9 @@ func (d director) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			// normally these are passed to the nonGoRestfulMux, but if discovery is enabled, it will go directly.
 			// We can't rely on a prefix match since /apis matches everything (see the big comment on Director above)
 			if path == "/apis" || path == "/apis/" {
-				glog.V(5).Infof("%v: %v %q satisfied by gorestful with webservice %v", d.name, req.Method, path, ws.RootPath())
+				glog.V(4).Infof("oklischat [goroutine %v]: %v: %v %q satisfied by gorestful with webservice %v", exec.CurGoroutineID(), d.name, req.Method, path, ws.RootPath())
 				// don't use servemux here because gorestful servemuxes get messed up when removing webservices
 				// TODO fix gorestful, remove TPRs, or stop using gorestful
-				glog.Errorf("oklischat [goroutine %v]: handler.go: dispatching to %v: %v %q (%v)", exec.CurGoroutineID(), d.name, req.Method, path, d.goRestfulContainer)
 				d.goRestfulContainer.Dispatch(w, req)
 				return
 			}
@@ -149,18 +150,20 @@ func (d director) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		case strings.HasPrefix(path, ws.RootPath()):
 			// ensure an exact match or a path boundary match
 			if len(path) == len(ws.RootPath()) || path[len(ws.RootPath())] == '/' {
-				glog.V(4).Infof("oklischat [goroutine %v]: %v: %v %q satisfied by gorestful with webservice %v", exec.CurGoroutineID(), d.name, req.Method, path, ws.RootPath())
+				glog.V(4).Infof("oklischat [goroutine %v]: starting goRestfulContainer.Dispatch: %v: %v %q satisfied by gorestful with webservice %v", exec.CurGoroutineID(), d.name, req.Method, path, ws.RootPath())
 				// don't use servemux here because gorestful servemuxes get messed up when removing webservices
 				// TODO fix gorestful, remove TPRs, or stop using gorestful
 				d.goRestfulContainer.Dispatch(w, req)
+				glog.V(4).Infof("oklischat [goroutine %v]: returned from goRestfulContainer.Dispatch: %v: %v %q satisfied by gorestful with webservice %v", exec.CurGoroutineID(), d.name, req.Method, path, ws.RootPath())
 				return
 			}
 		}
 	}
 
 	// if we didn't find a match, then we just skip gorestful altogether
-	glog.V(4).Infof("oklischat [goroutine %v]: %v: %v %q satisfied by nonGoRestful", exec.CurGoroutineID(), d.name, req.Method, path)
+	glog.V(4).Infof("oklischat [goroutine %v]: starting d.nonGoRestfulMux.ServeHTTP: %v: %v %q satisfied by nonGoRestful", exec.CurGoroutineID(), d.name, req.Method, path)
 	d.nonGoRestfulMux.ServeHTTP(w, req)
+	glog.V(4).Infof("oklischat [goroutine %v]: returned from d.nonGoRestfulMux.ServeHTTP: %v: %v %q satisfied by nonGoRestful", exec.CurGoroutineID(), d.name, req.Method, path)
 }
 
 //TODO: Unify with RecoverPanics?
