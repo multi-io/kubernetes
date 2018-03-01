@@ -141,6 +141,7 @@ func (d director) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				glog.V(5).Infof("%v: %v %q satisfied by gorestful with webservice %v", d.name, req.Method, path, ws.RootPath())
 				// don't use servemux here because gorestful servemuxes get messed up when removing webservices
 				// TODO fix gorestful, remove TPRs, or stop using gorestful
+				glog.Errorf("oklischat [goroutine %v]: handler.go: dispatching to %v: %v %q (%v)", exec.CurGoroutineID(), d.name, req.Method, path, d.goRestfulContainer)
 				d.goRestfulContainer.Dispatch(w, req)
 				return
 			}
@@ -148,7 +149,7 @@ func (d director) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		case strings.HasPrefix(path, ws.RootPath()):
 			// ensure an exact match or a path boundary match
 			if len(path) == len(ws.RootPath()) || path[len(ws.RootPath())] == '/' {
-				glog.V(5).Infof("%v: %v %q satisfied by gorestful with webservice %v", d.name, req.Method, path, ws.RootPath())
+				glog.V(4).Infof("oklischat [goroutine %v]: %v: %v %q satisfied by gorestful with webservice %v", exec.CurGoroutineID(), d.name, req.Method, path, ws.RootPath())
 				// don't use servemux here because gorestful servemuxes get messed up when removing webservices
 				// TODO fix gorestful, remove TPRs, or stop using gorestful
 				d.goRestfulContainer.Dispatch(w, req)
@@ -158,7 +159,7 @@ func (d director) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// if we didn't find a match, then we just skip gorestful altogether
-	glog.V(5).Infof("%v: %v %q satisfied by nonGoRestful", d.name, req.Method, path)
+	glog.V(4).Infof("oklischat [goroutine %v]: %v: %v %q satisfied by nonGoRestful", exec.CurGoroutineID(), d.name, req.Method, path)
 	d.nonGoRestfulMux.ServeHTTP(w, req)
 }
 

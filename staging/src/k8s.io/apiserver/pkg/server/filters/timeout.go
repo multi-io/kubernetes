@@ -72,7 +72,7 @@ func WithTimeoutForNonLongRunningRequests(handler http.Handler, requestContextMa
 				metrics.MonitorRequest(req, strings.ToUpper(requestInfo.Verb), "", requestInfo.Path, "", scope, http.StatusGatewayTimeout, 0, now)
 			}
 		}
-		return time.After(timeout), metricFn, apierrors.NewTimeoutError(fmt.Sprintf("oklischat [goroutine %v] request did not complete within %s", exec.CurGoroutineID(), timeout), 0)
+		return time.After(timeout), metricFn, apierrors.NewTimeoutError(fmt.Sprintf("oklischat [goroutine %v] filters/timeout: request did not complete within %s", exec.CurGoroutineID(), timeout), 0)
 	}
 	return WithTimeout(handler, timeoutFunc)
 }
@@ -106,7 +106,7 @@ func (t *timeoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	tw := newTimeoutWriter(w)
 	outerGoroutine := exec.CurGoroutineID()
 	go func() {
-		glog.Errorf("[goroutine %v] oklischat: wrapped handler, invoked by outer goroutine %v", exec.CurGoroutineID(), outerGoroutine)
+		glog.Errorf("oklischat [goroutine %v]: filters/timeout wrapped handler, invoked by outer goroutine %v", exec.CurGoroutineID(), outerGoroutine)
 		t.handler.ServeHTTP(tw, r)
 		close(done)
 	}()
@@ -115,7 +115,7 @@ func (t *timeoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	case <-after:
 		recordFn()
-		glog.Errorf("[goroutine %v] oklischat timeout occurred", exec.CurGoroutineID())
+		glog.Errorf("oklischat [goroutine %v] filters/timeout: timeout occurred", exec.CurGoroutineID())
 		tw.timeout(err)
 	}
 }
