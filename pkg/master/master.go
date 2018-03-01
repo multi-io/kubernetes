@@ -351,6 +351,7 @@ func (m *Master) InstallAPIs(apiResourceConfigSource serverstorage.APIResourceCo
 	}
 
 	for i := range apiGroupsInfo {
+		glog.Errorf("oklischat InstallAPIs: GenericAPIServer.InstallAPIGroup %v", apiGroupsInfo[i])
 		if err := m.GenericAPIServer.InstallAPIGroup(&apiGroupsInfo[i]); err != nil {
 			glog.Fatalf("Error in registering group versions: %v", err)
 		}

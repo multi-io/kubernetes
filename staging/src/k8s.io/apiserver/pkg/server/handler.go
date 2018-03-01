@@ -195,5 +195,6 @@ func serviceErrorHandler(ctx request.Context, s runtime.NegotiatedSerializer, se
 
 // ServeHTTP makes it an http.Handler
 func (a *APIServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	glog.Errorf("oklischat APIServerHandler.FullHandlerChain=%v", a.FullHandlerChain)
 	a.FullHandlerChain.ServeHTTP(w, r)
 }
