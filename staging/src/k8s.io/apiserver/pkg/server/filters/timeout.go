@@ -30,6 +30,7 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/metrics"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/utils/exec"
+	"github.com/golang/glog"
 )
 
 var errConnKilled = fmt.Errorf("kill connection/stream")
@@ -103,7 +104,9 @@ func (t *timeoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	done := make(chan struct{})
 	tw := newTimeoutWriter(w)
+	outerGoroutine := exec.CurGoroutineID()
 	go func() {
+		glog.Errorf("[goroutine %v] oklischat: wrapped handler, invoked by outer goroutine %v", exec.CurGoroutineID(), outerGoroutine)
 		t.handler.ServeHTTP(tw, r)
 		close(done)
 	}()
@@ -112,6 +115,7 @@ func (t *timeoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	case <-after:
 		recordFn()
+		glog.Errorf("[goroutine %v] oklischat timeout occurred", exec.CurGoroutineID())
 		tw.timeout(err)
 	}
 }
