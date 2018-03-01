@@ -35,6 +35,7 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/server/mux"
 	genericmux "k8s.io/apiserver/pkg/server/mux"
+	"k8s.io/utils/exec"
 )
 
 // APIServerHandlers holds the different http.Handlers used by the API server.
@@ -195,6 +196,6 @@ func serviceErrorHandler(ctx request.Context, s runtime.NegotiatedSerializer, se
 
 // ServeHTTP makes it an http.Handler
 func (a *APIServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	glog.Errorf("oklischat APIServerHandler.FullHandlerChain=%v", a.FullHandlerChain)
+	glog.Errorf("[goroutine %v] oklischat APIServerHandler.FullHandlerChain=%v", exec.CurGoroutineID(), a.FullHandlerChain)
 	a.FullHandlerChain.ServeHTTP(w, r)
 }

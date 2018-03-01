@@ -26,6 +26,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/endpoints/handlers/responsewriters"
 	"k8s.io/apiserver/pkg/endpoints/request"
+	"k8s.io/utils/exec"
 )
 
 // WithAuthorizationCheck passes all authorized requests on to handler, and returns a forbidden error otherwise.
@@ -35,7 +36,7 @@ func WithAuthorization(handler http.Handler, requestContextMapper request.Reques
 		return handler
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		glog.Errorf("oklischat filters/authorization start")
+		glog.Errorf("[goroutine %v] oklischat filters/authorization start", exec.CurGoroutineID())
 		ctx, ok := requestContextMapper.Get(req)
 		if !ok {
 			responsewriters.InternalError(w, req, errors.New("no context found for request"))
@@ -49,13 +50,13 @@ func WithAuthorization(handler http.Handler, requestContextMapper request.Reques
 		}
 		authorized, reason, err := a.Authorize(attributes)
 		if authorized {
-			glog.Errorf("oklischat filters/authorization succeeded, calling next handler (probably an API handler since authorization is the innermost filter in the default setup)")
+			glog.Errorf("[goroutine %v] oklischat filters/authorization succeeded, calling next handler (probably an API handler since authorization is the innermost filter in the default setup)", exec.CurGoroutineID())
 			handler.ServeHTTP(w, req)
 			return
 		}
 		if err != nil {
 			responsewriters.InternalError(w, req, err)
-			glog.Errorf("oklischat filters/authorization failed, error written")
+			glog.Errorf("[goroutine %v] oklischat filters/authorization failed, error written", exec.CurGoroutineID())
 			return
 		}
 

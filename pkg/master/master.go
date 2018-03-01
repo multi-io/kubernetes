@@ -79,6 +79,7 @@ import (
 	schedulingrest "k8s.io/kubernetes/pkg/registry/scheduling/rest"
 	settingsrest "k8s.io/kubernetes/pkg/registry/settings/rest"
 	storagerest "k8s.io/kubernetes/pkg/registry/storage/rest"
+	"k8s.io/utils/exec"
 )
 
 const (
@@ -351,7 +352,7 @@ func (m *Master) InstallAPIs(apiResourceConfigSource serverstorage.APIResourceCo
 	}
 
 	for i := range apiGroupsInfo {
-		glog.Errorf("oklischat InstallAPIs: GenericAPIServer.InstallAPIGroup %v", apiGroupsInfo[i])
+		glog.Errorf("[goroutine %v] oklischat InstallAPIs: GenericAPIServer.InstallAPIGroup %v", exec.CurGoroutineID(), apiGroupsInfo[i])
 		if err := m.GenericAPIServer.InstallAPIGroup(&apiGroupsInfo[i]); err != nil {
 			glog.Fatalf("Error in registering group versions: %v", err)
 		}

@@ -29,6 +29,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apiserver/pkg/endpoints/metrics"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
+	"k8s.io/utils/exec"
 )
 
 var errConnKilled = fmt.Errorf("kill connection/stream")
@@ -70,7 +71,7 @@ func WithTimeoutForNonLongRunningRequests(handler http.Handler, requestContextMa
 				metrics.MonitorRequest(req, strings.ToUpper(requestInfo.Verb), "", requestInfo.Path, "", scope, http.StatusGatewayTimeout, 0, now)
 			}
 		}
-		return time.After(timeout), metricFn, apierrors.NewTimeoutError(fmt.Sprintf("request did not complete within %s", timeout), 0)
+		return time.After(timeout), metricFn, apierrors.NewTimeoutError(fmt.Sprintf("oklischat [goroutine %v] request did not complete within %s", exec.CurGoroutineID(), timeout), 0)
 	}
 	return WithTimeout(handler, timeoutFunc)
 }
