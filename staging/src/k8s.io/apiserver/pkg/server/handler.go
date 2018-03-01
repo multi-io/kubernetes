@@ -130,10 +130,11 @@ type director struct {
 func (d director) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	path := req.URL.Path
 
-	glog.V(4).Infof("oklischat [goroutine %v]: entering director for %v %q", exec.CurGoroutineID(), req.Method, path)
+	glog.V(4).Infof("oklischat [goroutine %v]: entering director %v for %v %q", exec.CurGoroutineID(), d, req.Method, path)
 
 	// check to see if our webservices want to claim this path
 	for _, ws := range d.goRestfulContainer.RegisteredWebServices() {
+		glog.V(4).Infof("oklischat [goroutine %v]: director %v checking RegisteredWebService: RootPath=%v Documentation=%v", exec.CurGoroutineID(), d, ws.RootPath(), ws.Documentation())
 		switch {
 		case ws.RootPath() == "/apis":
 			// if we are exactly /apis or /apis/, then we need special handling in loop.
