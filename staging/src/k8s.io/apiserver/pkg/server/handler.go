@@ -134,7 +134,7 @@ func (d director) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// check to see if our webservices want to claim this path
 	for _, ws := range d.goRestfulContainer.RegisteredWebServices() {
-		glog.V(4).Infof("oklischat [goroutine %v]: director %v checking RegisteredWebService: RootPath=%v Documentation=%v", exec.CurGoroutineID(), d, ws.RootPath(), ws.Documentation())
+		//glog.V(4).Infof("oklischat [goroutine %v]: director %v checking RegisteredWebService: RootPath=%v Documentation=%v", exec.CurGoroutineID(), d, ws.RootPath(), ws.Documentation())
 		switch {
 		case ws.RootPath() == "/apis":
 			// if we are exactly /apis or /apis/, then we need special handling in loop.
