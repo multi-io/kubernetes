@@ -49,6 +49,7 @@ import (
 	_ "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	_ "k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions"
 	_ "k8s.io/apiextensions-apiserver/pkg/client/informers/internalversion"
+	"k8s.io/utils/exec"
 )
 
 var (
@@ -183,6 +184,8 @@ func (c completedConfig) New(delegationTarget genericapiserver.DelegationTarget)
 		c.ExtraConfig.CRDRESTOptionsGetter,
 		c.GenericConfig.AdmissionControl,
 	)
+
+	glog.Errorf("[goroutine %v] oklischat apiserver.go apiextensionsConfig.Complete().New(): registering NonGoRestfulMux handlers", exec.CurGoroutineID())
 	s.GenericAPIServer.Handler.NonGoRestfulMux.Handle("/apis", crdHandler)
 	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/apis/", crdHandler)
 

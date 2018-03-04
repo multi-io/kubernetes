@@ -28,6 +28,8 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/handlers/negotiation"
 	"k8s.io/apiserver/pkg/endpoints/handlers/responsewriters"
 	"k8s.io/apiserver/pkg/endpoints/request"
+	"github.com/golang/glog"
+	"k8s.io/utils/exec"
 )
 
 // APIGroupHandler creates a webservice serving the supported versions, preferred version, and name
@@ -78,5 +80,6 @@ func (s *APIGroupHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		responsewriters.InternalError(w, req, errors.New("no context found for request"))
 		return
 	}
+	glog.Errorf("[goroutine %v] oklischat APIGroupHandler.serveHTTP %v", exec.CurGoroutineID(), req.URL)
 	responsewriters.WriteObjectNegotiated(ctx, s.serializer, schema.GroupVersion{}, w, req, http.StatusOK, &s.group)
 }

@@ -58,6 +58,7 @@ import (
 	listers "k8s.io/apiextensions-apiserver/pkg/client/listers/apiextensions/internalversion"
 	"k8s.io/apiextensions-apiserver/pkg/controller/finalizer"
 	"k8s.io/apiextensions-apiserver/pkg/registry/customresource"
+	"k8s.io/utils/exec"
 )
 
 // crdHandler serves the `/apis` endpoint.
@@ -126,6 +127,7 @@ func NewCustomResourceDefinitionHandler(
 
 func (r *crdHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx, ok := r.requestContextMapper.Get(req)
+	glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP (probably via NonGoRestfulMux): %v", exec.CurGoroutineID(), req.URL)
 	if !ok {
 		// programmer error
 		panic("missing context")

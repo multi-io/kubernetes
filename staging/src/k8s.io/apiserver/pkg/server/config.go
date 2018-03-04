@@ -64,6 +64,8 @@ import (
 
 	// install apis
 	_ "k8s.io/apiserver/pkg/apis/apiserver/install"
+	"github.com/golang/glog"
+	"k8s.io/utils/exec"
 )
 
 const (
@@ -532,6 +534,7 @@ func DefaultBuildHandlerChain(apiHandler http.Handler, c *Config) http.Handler {
 }
 
 func installAPI(s *GenericAPIServer, c *Config) {
+	glog.Errorf("[goroutine %v] config.go/installAPI", exec.CurGoroutineID())
 	if c.EnableIndex {
 		routes.Index{}.Install(s.listedPathProvider, s.Handler.NonGoRestfulMux)
 	}
