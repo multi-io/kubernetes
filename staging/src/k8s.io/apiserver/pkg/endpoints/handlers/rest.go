@@ -404,8 +404,12 @@ func createHandler(r rest.NamedCreater, scope RequestScope, typer runtime.Object
 		trace := utiltrace.New("Create " + req.URL.Path)
 		defer trace.LogIfLong(500 * time.Millisecond)
 
+		trace.Step("pre0")
+
 		// TODO: we either want to remove timeout or document it (if we document, move timeout out of this function and declare it in api_installer)
 		timeout := parseTimeout(req.URL.Query().Get("timeout"))
+
+		trace.Step("pre1")
 
 		var (
 			namespace, name string
@@ -421,8 +425,12 @@ func createHandler(r rest.NamedCreater, scope RequestScope, typer runtime.Object
 			return
 		}
 
+		trace.Step("pre2")
+
 		ctx := scope.ContextFunc(req)
 		ctx = request.WithNamespace(ctx, namespace)
+
+		trace.Step("pre3")
 
 		gv := scope.Kind.GroupVersion()
 		s, err := negotiation.NegotiateInputSerializer(req, scope.Serializer)
@@ -432,11 +440,15 @@ func createHandler(r rest.NamedCreater, scope RequestScope, typer runtime.Object
 		}
 		decoder := scope.Serializer.DecoderToVersion(s.Serializer, schema.GroupVersion{Group: gv.Group, Version: runtime.APIVersionInternal})
 
+		trace.Step("pre4")
+
 		body, err := readBody(req)
 		if err != nil {
 			scope.err(err, w, req)
 			return
 		}
+
+		trace.Step("pre5")
 
 		defaultGVK := scope.Kind
 		original := r.New()
