@@ -142,35 +142,49 @@ func (r *crdHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// only match /apis/<group>/<version>
 		// only registered under /apis
 		if len(pathParts) == 3 {
+			glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP %v !requestInfo.IsResourceRequest, 2-elt path: delegating", exec.CurGoroutineID(), req.URL)
 			r.versionDiscoveryHandler.ServeHTTP(w, req)
+			glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP DONE %v !requestInfo.IsResourceRequest, 2-elt path: delegating", exec.CurGoroutineID(), req.URL)
 			return
 		}
 		// only match /apis/<group>
 		if len(pathParts) == 2 {
+			glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP %v !requestInfo.IsResourceRequest, 3-elt path: delegating", exec.CurGoroutineID(), req.URL)
 			r.groupDiscoveryHandler.ServeHTTP(w, req)
+			glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP DONE %v !requestInfo.IsResourceRequest, 3-elt path: delegating", exec.CurGoroutineID(), req.URL)
 			return
 		}
 
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP %v !requestInfo.IsResourceRequest, long path: delegating", exec.CurGoroutineID(), req.URL)
 		r.delegate.ServeHTTP(w, req)
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP DONE %v !requestInfo.IsResourceRequest, long path: delegating", exec.CurGoroutineID(), req.URL)
 		return
 	}
 
 	crdName := requestInfo.Resource + "." + requestInfo.APIGroup
 	crd, err := r.crdLister.Get(crdName)
 	if apierrors.IsNotFound(err) {
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP %v delegate 4", exec.CurGoroutineID(), req.URL)
 		r.delegate.ServeHTTP(w, req)
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP DONE %v delegate 4", exec.CurGoroutineID(), req.URL)
 		return
 	}
 	if err != nil {
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP %v delegate 5", exec.CurGoroutineID(), req.URL)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP DONE %v delegate 5", exec.CurGoroutineID(), req.URL)
 		return
 	}
 	if crd.Spec.Version != requestInfo.APIVersion {
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP %v delegate 6", exec.CurGoroutineID(), req.URL)
 		r.delegate.ServeHTTP(w, req)
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP DONE %v delegate 6", exec.CurGoroutineID(), req.URL)
 		return
 	}
 	if !apiextensions.IsCRDConditionTrue(crd, apiextensions.Established) {
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP %v delegate 7", exec.CurGoroutineID(), req.URL)
 		r.delegate.ServeHTTP(w, req)
+		glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP DONE %v delegate 7", exec.CurGoroutineID(), req.URL)
 	}
 	if len(requestInfo.Subresource) > 0 {
 		http.NotFound(w, req)
@@ -193,56 +207,57 @@ func (r *crdHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	case "get":
 		handler := handlers.GetResource(storage, storage, requestScope)
 		handler(w, req)
-		return
+		break
 	case "list":
 		forceWatch := false
 		handler := handlers.ListResource(storage, storage, requestScope, forceWatch, minRequestTimeout)
 		handler(w, req)
-		return
+		break
 	case "watch":
 		forceWatch := true
 		handler := handlers.ListResource(storage, storage, requestScope, forceWatch, minRequestTimeout)
 		handler(w, req)
-		return
+		break
 	case "create":
 		if terminating {
 			http.Error(w, fmt.Sprintf("%v not allowed while CustomResourceDefinition is terminating", requestInfo.Verb), http.StatusMethodNotAllowed)
-			return
+			break
 		}
 		handler := handlers.CreateResource(storage, requestScope, discovery.NewUnstructuredObjectTyper(nil), r.admission)
 		handler(w, req)
-		return
+		break
 	case "update":
 		if terminating {
 			http.Error(w, fmt.Sprintf("%v not allowed while CustomResourceDefinition is terminating", requestInfo.Verb), http.StatusMethodNotAllowed)
-			return
+			break
 		}
 		handler := handlers.UpdateResource(storage, requestScope, discovery.NewUnstructuredObjectTyper(nil), r.admission)
 		handler(w, req)
-		return
+		break
 	case "patch":
 		if terminating {
 			http.Error(w, fmt.Sprintf("%v not allowed while CustomResourceDefinition is terminating", requestInfo.Verb), http.StatusMethodNotAllowed)
-			return
+			break
 		}
 		handler := handlers.PatchResource(storage, requestScope, r.admission, unstructured.UnstructuredObjectConverter{})
 		handler(w, req)
-		return
+		break
 	case "delete":
 		allowsOptions := true
 		handler := handlers.DeleteResource(storage, allowsOptions, requestScope, r.admission)
 		handler(w, req)
-		return
+		break
 	case "deletecollection":
 		checkBody := true
 		handler := handlers.DeleteCollection(storage, checkBody, requestScope, r.admission)
 		handler(w, req)
-		return
+		break
 
 	default:
 		http.Error(w, fmt.Sprintf("unhandled verb %q", requestInfo.Verb), http.StatusMethodNotAllowed)
-		return
+		break
 	}
+	glog.Errorf("[goroutine %v] oklischat crdHandler.serveHTTP DONE %v", exec.CurGoroutineID(), req.URL)
 }
 
 // removeDeadStorage removes REST storage that isn't being used

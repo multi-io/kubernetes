@@ -82,4 +82,5 @@ func (s *APIGroupHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	glog.Errorf("[goroutine %v] oklischat APIGroupHandler.serveHTTP %v", exec.CurGoroutineID(), req.URL)
 	responsewriters.WriteObjectNegotiated(ctx, s.serializer, schema.GroupVersion{}, w, req, http.StatusOK, &s.group)
+	glog.Errorf("[goroutine %v] oklischat DONE APIGroupHandler.serveHTTP %v", exec.CurGoroutineID(), req.URL)
 }

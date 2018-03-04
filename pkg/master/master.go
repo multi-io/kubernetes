@@ -225,6 +225,8 @@ func (c completedConfig) New(delegationTarget genericapiserver.DelegationTarget)
 		return nil, fmt.Errorf("Master.New() called with empty config.KubeletClientConfig")
 	}
 
+	glog.Errorf("[goroutine %v] oklischat master.go kubeAPIServerConfig.Complete(versionedInformers).New(delegateAPIServer(): registering handlers", exec.CurGoroutineID())
+
 	s, err := c.GenericConfig.New("kube-apiserver", delegationTarget)
 	if err != nil {
 		return nil, err

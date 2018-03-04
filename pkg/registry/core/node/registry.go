@@ -49,11 +49,13 @@ func NewRegistry(s rest.StandardStorage) Registry {
 }
 
 func (s *storage) ListNodes(ctx genericapirequest.Context, options *metainternalversion.ListOptions) (*api.NodeList, error) {
+	glog.Errorf("[goroutine %v] oklischat node/registry.go ListNodes %v", exec.CurGoroutineID())
 	obj, err := s.List(ctx, options)
 	if err != nil {
 		return nil, err
 	}
 
+	glog.Errorf("[goroutine %v] oklischat node/registry.go DONE ListNodes %v", exec.CurGoroutineID())
 	return obj.(*api.NodeList), nil
 }
 
@@ -65,7 +67,9 @@ func (s *storage) CreateNode(ctx genericapirequest.Context, node *api.Node) erro
 }
 
 func (s *storage) UpdateNode(ctx genericapirequest.Context, node *api.Node) error {
+	glog.Errorf("[goroutine %v] oklischat node/registry.go UpdateNode %v", exec.CurGoroutineID(), node.Name)
 	_, _, err := s.Update(ctx, node.Name, rest.DefaultUpdatedObjectInfo(node, api.Scheme))
+	glog.Errorf("[goroutine %v] oklischat node/registry.go DONE UpdateNode %v", exec.CurGoroutineID(), node.Name)
 	return err
 }
 
@@ -74,10 +78,12 @@ func (s *storage) WatchNodes(ctx genericapirequest.Context, options *metainterna
 }
 
 func (s *storage) GetNode(ctx genericapirequest.Context, name string, options *metav1.GetOptions) (*api.Node, error) {
+	glog.Errorf("[goroutine %v] oklischat node/registry.go GetNode %v", exec.CurGoroutineID(), name)
 	obj, err := s.Get(ctx, name, options)
 	if err != nil {
 		return nil, err
 	}
+	glog.Errorf("[goroutine %v] oklischat node/registry.go DONE GetNode %v", exec.CurGoroutineID(), name)
 	return obj.(*api.Node), nil
 }
 
