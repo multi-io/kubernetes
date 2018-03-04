@@ -49,6 +49,7 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	utiltrace "k8s.io/apiserver/pkg/util/trace"
+	"k8s.io/utils/exec"
 )
 
 // RequestScope encapsulates common fields across all RESTful handler methods.
@@ -1327,7 +1328,10 @@ func summarizeData(data []byte, maxLength int) string {
 
 func readBody(req *http.Request) ([]byte, error) {
 	defer req.Body.Close()
-	return ioutil.ReadAll(req.Body)
+	glog.Errorf("[goroutine %v] oklischat readBody: before ioutil.ReadAll", exec.CurGoroutineID())
+	res, err := ioutil.ReadAll(req.Body)
+	glog.Errorf("[goroutine %v] oklischat readBody: after ioutil.ReadAll", exec.CurGoroutineID())
+	return res, err
 }
 
 func parseTimeout(str string) time.Duration {
