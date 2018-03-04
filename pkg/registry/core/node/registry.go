@@ -23,6 +23,8 @@ import (
 	genericapirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/kubernetes/pkg/api"
+	"github.com/golang/glog"
+	"k8s.io/utils/exec"
 )
 
 // Registry is an interface for things that know how to store node.
@@ -56,7 +58,9 @@ func (s *storage) ListNodes(ctx genericapirequest.Context, options *metainternal
 }
 
 func (s *storage) CreateNode(ctx genericapirequest.Context, node *api.Node) error {
+	glog.Errorf("[goroutine %v] oklischat node/registry.go CreateNode %v", exec.CurGoroutineID(), node.Name)
 	_, err := s.Create(ctx, node, false)
+	glog.Errorf("[goroutine %v] oklischat node/registry.go DONE CreateNode %v", exec.CurGoroutineID(), node.Name)
 	return err
 }
 

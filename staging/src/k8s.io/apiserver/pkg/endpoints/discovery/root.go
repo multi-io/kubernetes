@@ -30,6 +30,8 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/handlers/negotiation"
 	"k8s.io/apiserver/pkg/endpoints/handlers/responsewriters"
 	"k8s.io/apiserver/pkg/endpoints/request"
+	"github.com/golang/glog"
+	"k8s.io/utils/exec"
 )
 
 // GroupManager is an interface that allows dynamic mutation of the existing webservice to handle
@@ -99,6 +101,7 @@ func (s *rootAPIsHandler) RemoveGroup(groupName string) {
 }
 
 func (s *rootAPIsHandler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+	glog.Errorf("[goroutine %v] oklischat rootApisHandler.serveHTTP %v", exec.CurGoroutineID(), req.URL)
 	ctx, ok := s.contextMapper.Get(req)
 	if !ok {
 		responsewriters.InternalError(resp, req, errors.New("no context found for request"))
