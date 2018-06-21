@@ -423,15 +423,19 @@ func createNodeSecurityGroup(client *gophercloud.ServiceClient, nodeSecurityGrou
 		EtherType:     rules.EtherType6,
 	}
 
-	_, err := rules.Create(client, v4NodeSecGroupRuleCreateOpts).Extract()
+	createResult := rules.Create(client, v4NodeSecGroupRuleCreateOpts)
+	_, err := createResult.Extract()
 
 	if err != nil {
+		glog.Errorf("oklischat createNodeSecurityGroup v4 rule failure. Request: %v Request ID: %v", client.ServiceURL("security-group-rules"), createResult.Header.Get("x-compute-request-id"))
 		return err
 	}
 
-	_, err = rules.Create(client, v6NodeSecGroupRuleCreateOpts).Extract()
+	createResult = rules.Create(client, v6NodeSecGroupRuleCreateOpts)
+	_, err = createResult.Extract()
 
 	if err != nil {
+		glog.Errorf("oklischat createNodeSecurityGroup v6 rule failure. Request: %v Request ID: %v", client.ServiceURL("security-group-rules"), createResult.Header.Get("x-compute-request-id"))
 		return err
 	}
 	return nil

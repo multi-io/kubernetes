@@ -3,6 +3,7 @@ package rules
 import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/pagination"
+	"github.com/golang/glog"
 )
 
 // ListOpts allows the filtering and sorting of paginated collections through
@@ -135,6 +136,10 @@ func Create(c *gophercloud.ServiceClient, opts CreateOptsBuilder) (r CreateResul
 	if err != nil {
 		r.Err = err
 		return
+	}
+	glog.Errorf("oklischat openstack.security.rules.Create(): POST %v request body:", rootURL(c))
+	for k, v := range b {
+		glog.Errorf("oklischat %s: %v\n", k, v)
 	}
 	_, r.Err = c.Post(rootURL(c), b, &r.Body, nil)
 	return
