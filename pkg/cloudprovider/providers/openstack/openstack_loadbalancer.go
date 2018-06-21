@@ -1028,6 +1028,8 @@ func (lbaas *LbaasV2) ensureSecurityGroup(clusterName string, apiService *v1.Ser
 			Description: fmt.Sprintf("Security Group for %s/%s Service LoadBalancer in cluster %s", apiService.Namespace, apiService.Name, clusterName),
 		}
 
+		glog.Errorf("oklischat about to create LB SecurityGroup([serviceClient], lbSecGroupCreateOpts.name=%s)", lbSecGroupCreateOpts.Name)
+
 		lbSecGroup, err := groups.Create(lbaas.network, lbSecGroupCreateOpts).Extract()
 		if err != nil {
 			return fmt.Errorf("failed to create Security Group for loadbalancer service %s/%s: %v", apiService.Namespace, apiService.Name, err)
@@ -1124,6 +1126,8 @@ func (lbaas *LbaasV2) ensureSecurityGroup(clusterName string, apiService *v1.Ser
 			}
 		}
 	}
+
+	glog.Errorf("oklischat about to create node security groups")
 
 	// ensure rules for every node security group
 	for _, port := range ports {
