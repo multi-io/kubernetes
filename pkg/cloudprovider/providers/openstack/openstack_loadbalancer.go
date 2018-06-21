@@ -566,7 +566,7 @@ func getNodeSecurityGroupIDForLB(compute *gophercloud.ServiceClient, nodes []*v1
 		// case 1: node1:SG1  node2:SG2  return SG1,SG2
 		// case 2: node1:SG1,SG2  node2:SG3,SG4  return SG1,SG3
 		// case 3: node1:SG1,SG2  node2:SG2,SG3  return SG1,SG2
-		securityGroupName := srv.SecurityGroups[0]["name"]
+		securityGroupName := srv.SecurityGroups[0]["id"]
 		nodeSecurityGroupIDs.Insert(securityGroupName.(string))
 	}
 
@@ -1147,6 +1147,8 @@ func (lbaas *LbaasV2) ensureSecurityGroup(clusterName string, apiService *v1.Ser
 			}
 
 			// Add the rules in the Node Security Group
+			glog.Errorf("oklischat about to createNodeSecurityGroup([serviceClient], nodeSecurityGroupID=%v, int(port.NodePort)=%v, port.Protocol=%v, lbSecGroupID=%v)",
+						nodeSecurityGroupID, int(port.NodePort), port.Protocol, lbSecGroupID)
 			err = createNodeSecurityGroup(lbaas.network, nodeSecurityGroupID, int(port.NodePort), port.Protocol, lbSecGroupID)
 			if err != nil {
 				return fmt.Errorf("error occurred creating security group for loadbalancer service %s/%s: %v", apiService.Namespace, apiService.Name, err)
