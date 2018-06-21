@@ -1033,7 +1033,7 @@ func (lbaas *LbaasV2) ensureSecurityGroup(clusterName string, apiService *v1.Ser
 			Description: fmt.Sprintf("Security Group for %s/%s Service LoadBalancer in cluster %s", apiService.Namespace, apiService.Name, clusterName),
 		}
 
-		glog.Errorf("oklischat about to create LB SecurityGroup([serviceClient], lbSecGroupCreateOpts.name=%s)", lbSecGroupCreateOpts.Name)
+		glog.Errorf("oklischat about to create LB SecurityGroup")
 
 		lbSecGroup, err := groups.Create(lbaas.network, lbSecGroupCreateOpts).Extract()
 		if err != nil {
