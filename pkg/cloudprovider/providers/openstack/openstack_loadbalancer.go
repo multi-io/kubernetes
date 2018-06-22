@@ -985,6 +985,8 @@ func (lbaas *LbaasV2) EnsureLoadBalancer(ctx context.Context, clusterName string
 			_ = lbaas.EnsureLoadBalancerDeleted(ctx, clusterName, apiService)
 			return status, err
 		}
+	} else {
+		glog.V(4).Infof("oklischat NOT managing node-security-group service %s", apiService.Name)
 	}
 
 	return status, nil
