@@ -551,7 +551,7 @@ func getSubnetIDForLB(compute *gophercloud.ServiceClient, node v1.Node) (string,
 }
 
 // getNodeSecurityGroupIDForLB lists node-security-groups for specific nodes
-func getNodeSecurityGroupIDForLB(compute *gophercloud.ServiceClient, nodes []*v1.Node) ([]string, error) {
+func getNodeSecurityGroupIDForLB(compute *gophercloud.ServiceClient, network *gophercloud.ServiceClient, nodes []*v1.Node) ([]string, error) {
 	nodeSecurityGroupIDs := sets.NewString()
 
 	for _, node := range nodes {
@@ -568,7 +568,7 @@ func getNodeSecurityGroupIDForLB(compute *gophercloud.ServiceClient, nodes []*v1
 		// case 3: node1:SG1,SG2  node2:SG2,SG3  return SG1,SG2
 		securityGroupName := srv.SecurityGroups[0]["name"]
 		glog.Errorf("[oklischat] getNodeSecurityGroupIDForLB(): determining ID of sec. group %s", securityGroupName.(string))
-		secGroupID, err := groups.IDFromName(compute, securityGroupName.(string))
+		secGroupID, err := groups.IDFromName(network, securityGroupName.(string))
 		if err != nil {
 			glog.Errorf("[oklischat] getNodeSecurityGroupIDForLB(): FAILURE: %v", err)
 			return nodeSecurityGroupIDs.List(), err
@@ -1001,7 +1001,7 @@ func (lbaas *LbaasV2) ensureSecurityGroup(clusterName string, apiService *v1.Ser
 	// find node-security-group for service
 	var err error
 	if len(lbaas.opts.NodeSecurityGroupIDs) == 0 {
-		lbaas.opts.NodeSecurityGroupIDs, err = getNodeSecurityGroupIDForLB(lbaas.compute, nodes)
+		lbaas.opts.NodeSecurityGroupIDs, err = getNodeSecurityGroupIDForLB(lbaas.compute, lbaas.network, nodes)
 		if err != nil {
 			return fmt.Errorf("failed to find node-security-group for loadbalancer service %s/%s: %v", apiService.Namespace, apiService.Name, err)
 		}
@@ -1319,7 +1319,7 @@ func (lbaas *LbaasV2) updateSecurityGroup(clusterName string, apiService *v1.Ser
 	originalNodeSecurityGroupIDs := lbaas.opts.NodeSecurityGroupIDs
 
 	var err error
-	lbaas.opts.NodeSecurityGroupIDs, err = getNodeSecurityGroupIDForLB(lbaas.compute, nodes)
+	lbaas.opts.NodeSecurityGroupIDs, err = getNodeSecurityGroupIDForLB(lbaas.compute, lbaas.network, nodes)
 	if err != nil {
 		return fmt.Errorf("failed to find node-security-group for loadbalancer service %s/%s: %v", apiService.Namespace, apiService.Name, err)
 	}
