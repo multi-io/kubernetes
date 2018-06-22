@@ -3,6 +3,7 @@ package groups
 import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/pagination"
+	"github.com/golang/glog"
 )
 
 // ListOpts allows the filtering and sorting of paginated collections through
@@ -125,15 +126,20 @@ func IDFromName(client *gophercloud.ServiceClient, name string) (string, error) 
 	id := ""
 	pages, err := List(client, ListOpts{}).AllPages()
 	if err != nil {
+		glog.Errorf("[oklischat] IDFromName(%v): listing failed...", name)
 		return "", err
 	}
+	glog.Errorf("[oklischat] IDFromName(%v): listing succeeded...", name)
 
 	all, err := ExtractGroups(pages)
 	if err != nil {
+		glog.Errorf("[oklischat] IDFromName(%v): extracting groups failed...", name)
 		return "", err
 	}
+	glog.Errorf("[oklischat] IDFromName(%v): extracted groups...", name)
 
 	for _, s := range all {
+		glog.Errorf("[oklischat] IDFromName(%v): group in list: %v", name, s.Name)
 		if s.Name == name {
 			count++
 			id = s.ID
