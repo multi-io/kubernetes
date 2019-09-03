@@ -1,0 +1,14 @@
+language: minimal
+
+env:
+  global:
+  - secure: "CGug3zczUgU0s3KW3JXa9Y7Nh+UOJEep6TsTajUoPGya4IVm0ccWENwAg1uOU1FaaLP2WmPA923pjdf/0SQG72x4J1q+qOE5uOpgYTlASJqRUNnXb5B0H8fAOnrE3T9R0xkWEwgpKfxqJwkWhW407povnZc1wmMNvr1Mte9rBwbXnRPCyJ+BDNxp8poDEa6W+TCz7LYPchyDUkoTV/td5Ja9sxFCJcW+rFV6S9Fn0SKYbqVlN4xSGvkf5ibvYyyXfwxDFG5zUaChr++3j8iXxBe4EXa2W457+r7Qg8Ci8wu0yaRiYHzXyFqj9bUWrzNTOtjkvKKUZz2TyzYeuw1Y3yzk7Rr99K3RxUU9n0x3yZdE94PKggLFhZ/WOWbNcZlr7dIT9RGQ5z0l78rfugDVW8oKIBTvVEydKcWGfyd7unvdR6N+oMErwt22DkUrNJn9gpqzFTVH6Ip68kUTE+9zcmaWjz3L2Y39JdjTnNPHhFqzHqGH5f1PX7jXt0ln2Td64kts+c6nlrfbiDSrZ1C15BETYU5rKJ6RvC/A9+rlNESMho9bACsJ9Xtl6XkZkgnhoyDe3gpJZFlhOwb1tMvNQQzPRR8e7AqUrjBY8QGcOSmhFxa8LL5xIkhnE3ZA3XWvmpTLrO+42VtK0naoAOEsTLojo7ZxpYP/SNSUqJj3/TQ="
+
+script: make -f sys11.make compile-image
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: make -f sys11.make tag-image ci-push-image
+  on:
+    tags: true
