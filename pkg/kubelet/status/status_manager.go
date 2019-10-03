@@ -69,6 +69,7 @@ type manager struct {
 	// apiStatusVersions must only be accessed from the sync thread.
 	apiStatusVersions map[kubetypes.MirrorPodUID]uint64
 	podDeletionSafety PodDeletionSafetyProvider
+	lastUpdateTime    *time.Time
 }
 
 // PodStatusProvider knows how to provide status for a pod. It's intended to be used by other components
@@ -124,6 +125,7 @@ func NewManager(kubeClient clientset.Interface, podManager kubepod.Manager, podD
 		podStatusChannel:  make(chan podStatusSyncRequest, 1000), // Buffer up to 1000 statuses
 		apiStatusVersions: make(map[kubetypes.MirrorPodUID]uint64),
 		podDeletionSafety: podDeletionSafety,
+		lastUpdateTime:    nil,
 	}
 }
 
@@ -403,9 +405,17 @@ func (m *manager) updateStatusInternal(pod *v1.Pod, status v1.PodStatus, forceUp
 	}
 
 	normalizeStatus(pod, &status)
+
 	// The intent here is to prevent concurrent updates to a pod's status from
 	// clobbering each other so the phase of a pod progresses monotonically.
-	if isCached && isPodStatusByKubeletEqual(&cachedStatus.status, &status) && !forceUpdate {
+	shouldUpdate := forceUpdate
+	if !shouldUpdate && m.lastUpdateTime != nil {
+		if time.Now().Sub(*m.lastUpdateTime) > 200*time.Second {
+			shouldUpdate = true
+		}
+	}
+
+	if isCached && isPodStatusByKubeletEqual(&cachedStatus.status, &status) && !shouldUpdate {
 		klog.V(3).Infof("Ignoring same status for pod %q, status: %+v", format.Pod(pod), status)
 		return false // No new status.
 	}
@@ -422,6 +432,8 @@ func (m *manager) updateStatusInternal(pod *v1.Pod, status v1.PodStatus, forceUp
 	case m.podStatusChannel <- podStatusSyncRequest{pod.UID, newStatus}:
 		klog.V(5).Infof("Status Manager: adding pod: %q, with status: (%d, %v) to podStatusChannel",
 			pod.UID, newStatus.version, newStatus.status)
+		t := time.Now()
+		m.lastUpdateTime = &t
 		return true
 	default:
 		// Let the periodic syncBatch handle the update if the channel is full.
