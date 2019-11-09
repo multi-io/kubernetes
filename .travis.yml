@@ -2,13 +2,16 @@ language: minimal
 
 env:
   global:
+    # DOCKER_USERNAME / DOCKER_PASSWORD
   - secure: "CGug3zczUgU0s3KW3JXa9Y7Nh+UOJEep6TsTajUoPGya4IVm0ccWENwAg1uOU1FaaLP2WmPA923pjdf/0SQG72x4J1q+qOE5uOpgYTlASJqRUNnXb5B0H8fAOnrE3T9R0xkWEwgpKfxqJwkWhW407povnZc1wmMNvr1Mte9rBwbXnRPCyJ+BDNxp8poDEa6W+TCz7LYPchyDUkoTV/td5Ja9sxFCJcW+rFV6S9Fn0SKYbqVlN4xSGvkf5ibvYyyXfwxDFG5zUaChr++3j8iXxBe4EXa2W457+r7Qg8Ci8wu0yaRiYHzXyFqj9bUWrzNTOtjkvKKUZz2TyzYeuw1Y3yzk7Rr99K3RxUU9n0x3yZdE94PKggLFhZ/WOWbNcZlr7dIT9RGQ5z0l78rfugDVW8oKIBTvVEydKcWGfyd7unvdR6N+oMErwt22DkUrNJn9gpqzFTVH6Ip68kUTE+9zcmaWjz3L2Y39JdjTnNPHhFqzHqGH5f1PX7jXt0ln2Td64kts+c6nlrfbiDSrZ1C15BETYU5rKJ6RvC/A9+rlNESMho9bACsJ9Xtl6XkZkgnhoyDe3gpJZFlhOwb1tMvNQQzPRR8e7AqUrjBY8QGcOSmhFxa8LL5xIkhnE3ZA3XWvmpTLrO+42VtK0naoAOEsTLojo7ZxpYP/SNSUqJj3/TQ="
+    # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+  - secure: "qPBd9gsgWxxSqmfx3X8sa7Ds/E2RnssvoQq4LihfehSEG7JkXk1K0VBG6XujH9iFlPAEMMUjgyEH+9sqJfOLmQsbi8/q3pOBDuKm/jw4wi2qZQ4O0WI1S4fvcvJE45WLk+jKa+RPGe8t/YDU59nbSIEo1V/lvNehCa9u8oX6C0fXeXDgIa4YqSXZMhjWk3wH3nYw4D1/X3gokqWL4OoG85t/a9mF91P0ApYB6UzXJeWtxp6pi7uWNR4jhMZaqxmWeiK2xUHKwp8Jf49F2PV1UobfIbkjDWlmVrmOxZCtG66GivBDCdjO3tde7JgO1eQqTEdFlyAnz6ZA3sokCgzctZLRM0GS8HzxMcx4jNJs7CKIwjya+CWkBq7bRqydkafglmPUpP7hYxUD3fmFsUrhfceG6ZQuYynxp1Aw0K0+0bOg0jD6if4JTjkDIymrSiSaUNJWMESv9aFhl1obEFAKHxrn+Zu+kVat6OQcIWPutI93tgW38L67gYKwcBZ8h4+z4+1YTDvk7rOx8lKt89S0A3K00JL6I8ywjGPGZ8MDAUiVYcZeDAink0Z9B/l228/pLGBr+cGQZ559bOF9BtAXm6ebpU6oVvpImCWxPC+qX9JI4Dd7MoHtCFrOKoseHvrB2h97pc2+lv92Iwr2UbppKgpWuINLgaP8hDGuJOQQ93k="
 
-script: make -f sys11.make compile-image
+script: make -f sys11.make compile-image compile-kubelet
 
 deploy:
   provider: script
   skip_cleanup: true
-  script: make -f sys11.make tag-image ci-push-image
+  script: make -f sys11.make tag-image ci-push-image ci-upload-kubelet-binary
   on:
     tags: true
