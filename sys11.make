@@ -1,16 +1,12 @@
 REGISTRY=syseleven
 VERSION=$(shell hack/print-workspace-status.sh | grep gitVersion | awk '{print $$2}')
 
-default: compile-image tag-image
+default: compile
 
-compile-image:
-	$(MAKE) quick-release-images KUBE_BUILD_CONFORMANCE=n
-
-tag-image:
-	$(MAKE) -C cluster/images/hyperkube REGISTRY=$(REGISTRY) VERSION=$(VERSION) build
-
-compile-kubelet:
-	build/run.sh make all WHAT=cmd/kubelet KUBE_BUILD_PLATFORMS=linux/amd64 >/dev/null
+compile:
+	# build kubelet kubectl first. Workaround for https://github.com/kubernetes/kubernetes/issues/86233
+	build/run.sh make kubelet kubectl
+	$(MAKE) quick-release-images KUBE_BUILD_CONFORMANCE=n REGISTRY=$(REGISTRY) VERSION=$(VERSION)
 
 ci-push-image:
 	echo "$$DOCKER_PASSWORD" | docker login -u "$$DOCKER_USERNAME" --password-stdin

@@ -7,11 +7,11 @@ env:
     # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
   - secure: "qPBd9gsgWxxSqmfx3X8sa7Ds/E2RnssvoQq4LihfehSEG7JkXk1K0VBG6XujH9iFlPAEMMUjgyEH+9sqJfOLmQsbi8/q3pOBDuKm/jw4wi2qZQ4O0WI1S4fvcvJE45WLk+jKa+RPGe8t/YDU59nbSIEo1V/lvNehCa9u8oX6C0fXeXDgIa4YqSXZMhjWk3wH3nYw4D1/X3gokqWL4OoG85t/a9mF91P0ApYB6UzXJeWtxp6pi7uWNR4jhMZaqxmWeiK2xUHKwp8Jf49F2PV1UobfIbkjDWlmVrmOxZCtG66GivBDCdjO3tde7JgO1eQqTEdFlyAnz6ZA3sokCgzctZLRM0GS8HzxMcx4jNJs7CKIwjya+CWkBq7bRqydkafglmPUpP7hYxUD3fmFsUrhfceG6ZQuYynxp1Aw0K0+0bOg0jD6if4JTjkDIymrSiSaUNJWMESv9aFhl1obEFAKHxrn+Zu+kVat6OQcIWPutI93tgW38L67gYKwcBZ8h4+z4+1YTDvk7rOx8lKt89S0A3K00JL6I8ywjGPGZ8MDAUiVYcZeDAink0Z9B/l228/pLGBr+cGQZ559bOF9BtAXm6ebpU6oVvpImCWxPC+qX9JI4Dd7MoHtCFrOKoseHvrB2h97pc2+lv92Iwr2UbppKgpWuINLgaP8hDGuJOQQ93k="
 
-script: make -f sys11.make compile-image compile-kubelet
+script: make -f sys11.make compile
 
 deploy:
   provider: script
   skip_cleanup: true
-  script: make -f sys11.make tag-image ci-push-image ci-upload-kubelet-binary
+  script: make -f sys11.make ci-push-image ci-upload-kubelet-binary
   on:
     tags: true
